@@ -1,6 +1,5 @@
 const TelegramBot = require('node-telegram-bot-api');
 const { title } = require('process');
-// const { title } = require('process');
 const token = "7131406133:AAF0jOuKT9pD_rMQ7e8_2zhBCOjTa31Pc6Q"
 
 
@@ -31,21 +30,20 @@ var options = {
     reply_markup: JSON.stringify({ 
       inline_keyboard: [ 
         [{ text: 'Добавить задачу', callback_data: '1' }], 
-        [{ text: 'Удалить последнюю задачу', callback_data: '2' }]
+        [{ text: 'Удалить последнюю задачу', callback_data: '2' }],
+        [{ text: 'Удалить опр. задачу', callback_data: '3' }], 
       ] 
     }) 
 }; 
 
 
 
-notes = [{title: 1,desc: "1"},{title: 2,desc: "2"},{title: 3,desc: "3"},]
+notes = ["1", "2", "3"]
 
 let NotesCheck = (arrObjects) =>{
-    let arr = []
+    arr = []
     for (let i = 0; i < arrObjects.length; i++) {
-        const element = arrObjects[i];
-        
-        arr[i] = `${arrObjects[i].title}) ${arrObjects[i].desc}\n`
+        arr[i] = `${i + 1})${arrObjects[i]} \n`
     }
     return arr
 }
@@ -72,25 +70,32 @@ bot.on('callback_query',async (query) => {
      
         console.log(notes)
     }
-    else{
+    if(query.data == 2){
         console.log(2)
         bot.sendMessage(query.message.chat.id, "Последняя задача удалена ")
         flag = 2;
     }
+    if (query.data == 3) {
+        bot.sendMessage(query.message.chat.id, "Введите номер заметки которую надо удалить")
+        flag = 3;
+    }
 
     bot.on("text", async (userText) => {
         if(query.data == 1 && flag == 1){
-        notes.push({
-            title: notes.length + 1,
-            desc: userText.text
-        })
-        flag = 0
-        console.log(notes)
+            notes.push(userText.text)
+            flag = 0 
+            console.log(notes)
         }
         if(query.data == 2 && flag == 2){
             notes.pop()
             flag = 0
         }
+        if(query.data == 3 && flag == 3){
+
+            notes.splice(Number(userText - 1), 1)
+            flag = 0
+        }
     })
 })
 
+// Сделать проверку число ли в userText 
